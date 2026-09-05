@@ -1,0 +1,19 @@
+COMPRESSOR C-101 OPERATING AND MAINTENANCE SOP
+
+Equipment ID: C-101
+Equipment Type: Industrial Compressor
+
+Normal operating temperature:
+75 C to 85 C.
+
+If operating temperature exceeds 85 C:
+1. Notify the maintenance supervisor.
+2. Inspect the compressor cooling system.
+3. Check lubrication condition.
+4. Inspect bearings for abnormal wear.
+5. Do not return the equipment to normal operation until the abnormal condition is evaluated.
+
+Visible oil leakage around the compressor housing should be reported for maintenance inspection.
+
+Repeated temperature excursions may indicate a developing mechanical or lubrication problem.
+
