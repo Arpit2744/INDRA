@@ -34,7 +34,6 @@ def investigate():
     """
     Run the complete INDRA investigation workflow.
 
-    Flow:
     Document Agent
         -> Vision Agent
         -> Investigation Agent
@@ -92,8 +91,7 @@ def investigate():
         }
     )
 
-    # Store the complete investigation so that
-    # later endpoints can approve/reject the same run.
+    # Store the complete investigation state.
     run_id = run_store.create(result)
 
     return {
@@ -105,7 +103,7 @@ def investigate():
 @router.post("/approve/{run_id}")
 def approve(run_id: str):
     """
-    Approve a pending INDRA investigation.
+    Approve a pending investigation.
     """
 
     try:
@@ -117,17 +115,16 @@ def approve(run_id: str):
         )
 
     try:
-        approval = approval_service.approve(
-            state,
-            approved_by="supervisor",
-        )
+        # ApprovalService already assigns
+        # approved_by = supervisor internally.
+        approval = approval_service.approve(state)
+
     except ValueError as exc:
         raise HTTPException(
             status_code=400,
             detail=str(exc),
         )
 
-    # Update stored investigation state.
     run_store.update(
         run_id,
         {
@@ -135,7 +132,6 @@ def approve(run_id: str):
         },
     )
 
-    # Add approval event to the audit trail.
     audit_events = list(
         state.get("audit_events", [])
     )
@@ -167,7 +163,7 @@ def approve(run_id: str):
 @router.post("/reject/{run_id}")
 def reject(run_id: str):
     """
-    Reject a pending INDRA investigation.
+    Reject a pending investigation.
     """
 
     try:
@@ -179,17 +175,15 @@ def reject(run_id: str):
         )
 
     try:
-        approval = approval_service.reject(
-            state,
-            rejected_by="supervisor",
-        )
+        # ApprovalService does not accept rejected_by.
+        approval = approval_service.reject(state)
+
     except ValueError as exc:
         raise HTTPException(
             status_code=400,
             detail=str(exc),
         )
 
-    # Update stored investigation state.
     run_store.update(
         run_id,
         {
@@ -197,7 +191,6 @@ def reject(run_id: str):
         },
     )
 
-    # Add rejection event to the audit trail.
     audit_events = list(
         state.get("audit_events", [])
     )
@@ -229,7 +222,7 @@ def reject(run_id: str):
 @router.get("/runs/{run_id}")
 def get_run(run_id: str):
     """
-    Retrieve the complete state of an investigation.
+    Retrieve the complete investigation state.
     """
 
     try:

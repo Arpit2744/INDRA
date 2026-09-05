@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>INDRA | Industrial AI Workbench</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#071018;color:#eaf2f6;font:14px Segoe UI,Arial,sans-serif}
+header{height:70px;padding:0 28px;border-bottom:1px solid #203342;display:flex;align-items:center;justify-content:space-between;background:#0a151e}
+.brand{display:flex;gap:12px;align-items:center}.logo{border:1px solid #55d6a5;border-radius:10px;padding:10px;color:#55d6a5;font-weight:800}.brand b{font-size:20px}.muted{color:#8da3b3;font-size:12px}
+main{max-width:1350px;margin:auto;padding:25px}.hero{margin-bottom:20px}.hero h1{margin:0 0 7px;font-size:28px}.hero p{margin:0;color:#8da3b3}
+.grid{display:grid;grid-template-columns:330px 1fr;gap:18px}.card{background:#0d1822;border:1px solid #203342;border-radius:14px;padding:17px}
+h3{margin:0 0 13px;font-size:15px}.request{background:#09141d;border:1px solid #203342;border-radius:9px;padding:13px;line-height:1.5;color:#d4e0e7}
+button{border:0;border-radius:8px;padding:10px 13px;font-weight:700;cursor:pointer;background:#55d6a5;color:#061018}button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#182b38;color:#dce8ef;border:1px solid #2a4353}.danger{background:#3a2028;color:#ffb4bd}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.run{margin-top:12px;color:#8da3b3}.run b{color:#fff}
+.workflow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}.stage{padding:12px 7px;text-align:center;background:#09141d;border:1px solid #203342;border-radius:9px}.stage.done{border-color:#55d6a5}.stage.wait{border-color:#cda83e}.stage strong{display:block;font-size:12px}.stage small{color:#8da3b3;font-size:10px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}.metric{background:#09141d;border:1px solid #203342;border-radius:9px;padding:12px}.metric small{color:#8da3b3}.metric b{display:block;margin-top:5px}
+.tabs{display:flex;gap:5px;border-bottom:1px solid #203342;margin-bottom:14px}.tab{background:transparent;color:#8da3b3;border-bottom:2px solid transparent}.tab.active{color:#fff;border-color:#55d6a5}
+pre{margin:0;background:#061018;border:1px solid #172b39;border-radius:8px;padding:13px;max-height:380px;overflow:auto;white-space:pre-wrap;font:12px/1.5 Consolas,monospace;color:#cbd8df}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}.box{background:#09141d;border:1px solid #203342;border-radius:9px;padding:13px;line-height:1.5;color:#c3d0d7;min-height:130px}
+.badge{display:inline-block;border-radius:99px;padding:5px 9px;font-size:10px;font-weight:800}.pending{background:#3b3015;color:#ffd66d}.approved{background:#12382c;color:#72e4b7}.rejected{background:#3b1920;color:#ff9ca7}
+#toast{position:fixed;right:20px;bottom:20px;background:#132633;border:1px solid #2c4657;padding:12px 15px;border-radius:9px;display:none}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.workflow{grid-template-columns:repeat(2,1fr)}.metrics{grid-template-columns:repeat(2,1fr)}.cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">IN</div><div><b>INDRA</b><div class="muted">Industrial Native Decision & Reasoning Architecture</div></div></div><div id="health" class="muted">Checking local backend...</div></header>
+<main>
+<div class="hero"><h1>Confidential Industrial AI Workbench</h1><p>Evidence-first agentic investigation • Local inference • Validation • Human approval • Auditability</p></div>
+<div class="grid">
+<aside>
+<div class="card">
+<h3>Investigation Request</h3>
+<div class="request">Investigate abnormal compressor C-101 condition. Identify possible causes, provide supporting evidence, and recommend the next maintenance action.</div>
+<div class="actions"><button id="run" onclick="investigate()">▶ Run Investigation</button><button class="secondary" onclick="health()">Health</button></div>
+<div class="run">Run ID: <b id="runid">—</b></div>
+</div>
+<div class="card" style="margin-top:16px">
+<h3>Human Approval Gateway</h3><div id="approval">Waiting for investigation.</div>
+<div class="actions"><button id="approve" onclick="decide('approve')" disabled>✓ Approve</button><button id="reject" class="danger" onclick="decide('reject')" disabled>✕ Reject</button></div>
+</div>
+</aside>
+<section>
+<div class="workflow">
+<div id="s1" class="stage"><div>📄</div><strong>Document Agent</strong><small>SOP evidence</small></div>
+<div id="s2" class="stage"><div>◉</div><strong>Vision Agent</strong><small>Image analysis</small></div>
+<div id="s3" class="stage"><div>🧠</div><strong>Investigation</strong><small>Reasoning</small></div>
+<div id="s4" class="stage"><div>✓</div><strong>Validation</strong><small>Grounding check</small></div>
+<div id="s5" class="stage"><div>👤</div><strong>Approval</strong><small>Supervisor gate</small></div>
+</div>
+<div class="metrics"><div class="metric"><small>Inference</small><b>LOCAL</b></div><div class="metric"><small>Model</small><b>Qwen 2.5 · 3B</b></div><div class="metric"><small>Evidence</small><b id="ec">—</b></div><div class="metric"><small>Validation</small><b id="vs">—</b></div></div>
+<div class="card">
+<div class="tabs"><button class="tab active" onclick="tab('summary',this)">Investigation</button><button class="tab" onclick="tab('evidence',this)">Evidence</button><button class="tab" onclick="tab('audit',this)">Audit Trail</button><button class="tab" onclick="tab('raw',this)">Raw State</button></div>
+<div id="summary"><div class="cols"><div class="box"><b>Analysis</b><p id="analysis">Run the investigation to populate this panel.</p></div><div class="box"><b>Recommendation</b><p id="recommendation">Validated recommendation will appear here.</p></div></div></div>
+<div id="evidence" style="display:none"><pre id="evidencePre">No evidence loaded.</pre></div>
+<div id="audit" style="display:none"><pre id="auditPre">No audit events yet.</pre></div>
+<div id="raw" style="display:none"><pre id="rawPre">No run state yet.</pre></div>
+</div>
+</section>
+</div>
+</main><div id="toast"></div>
+<script>
+let runId=null,state=null;
+function msg(x){let t=document.getElementById('toast');t.textContent=x;t.style.display='block';setTimeout(()=>t.style.display='none',3000)}
+async function api(url,opt={}){let r=await fetch(url,{headers:{'Content-Type':'application/json'},...opt});let d={};try{d=await r.json()}catch{}if(!r.ok)throw Error(d.detail||'Request failed');return d}
+async function health(){try{let d=await api('/health');document.getElementById('health').textContent='● LOCAL BACKEND · '+String(d.mode).toUpperCase();msg('INDRA backend is online.')}catch(e){document.getElementById('health').textContent='● BACKEND OFFLINE';msg(e.message)}}
+function stage(n,c='done'){document.getElementById('s'+n).className='stage '+c}
+function text(o,ks){for(let k of ks)if(o&&typeof o[k]==='string'&&o[k].trim())return o[k];return 'Not available.'}
+function render(d){state=d;runId=d.run_id||runId;document.getElementById('runid').textContent=runId||'—';let inv=d.investigation_result||{},v=d.validation||{},a=d.approval||{};document.getElementById('analysis').textContent=text(inv,['analysis','answer','reasoning','summary']);document.getElementById('recommendation').textContent=text(inv,['recommendation','recommended_action','action','answer']);document.getElementById('ec').textContent=(d.evidence||[]).length;document.getElementById('vs').textContent=(v.status||'—').toUpperCase();document.getElementById('approval').innerHTML='Status: <span class="badge '+(a.status==='approved'?'approved':a.status==='rejected'?'rejected':'pending')+'">'+(a.status||'pending').toUpperCase()+'</span>';document.getElementById('evidencePre').textContent=JSON.stringify({document_agent:d.document_result||{},vision_agent:d.vision_result||{},evidence:d.evidence||[]},null,2);document.getElementById('auditPre').textContent=JSON.stringify(d.audit_events||[],null,2);document.getElementById('rawPre').textContent=JSON.stringify(d,null,2);for(let i=1;i<=5;i++)stage(i,'');if(d.document_result)stage(1);if(d.vision_result)stage(2);if(d.investigation_result)stage(3);if(v.status==='validated')stage(4);stage(5,a.status==='pending'?'wait':a.status==='approved'?'done':'');document.getElementById('approve').disabled=a.status!=='pending';document.getElementById('reject').disabled=a.status!=='pending'}
+async function investigate(){let b=document.getElementById('run');b.disabled=true;b.textContent='⏳ Running local agents...';try{let d=await api('/investigate',{method:'POST'});render(d);msg('Investigation complete: '+d.run_id)}catch(e){msg(e.message)}finally{b.disabled=false;b.textContent='▶ Run Investigation'}}
+async function decide(kind){if(!runId)return;try{let d=await api('/'+kind+'/'+encodeURIComponent(runId),{method:'POST'});state.approval=d.approval;state.audit_events=state.audit_events||[];state.audit_events.push({stage:'human_approval',status:d.status,details:{[d.status==='approved'?'approved_by':'rejected_by']:'supervisor'}});render(state);msg('Supervisor decision: '+d.status)}catch(e){msg(e.message)}}
+function tab(id,el){for(let x of ['summary','evidence','audit','raw'])document.getElementById(x).style.display=x===id?'block':'none';document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));el.classList.add('active')}
+health();
+</script>
+</body></html>
