@@ -35,3 +35,10 @@ class Agent(ABC):
     ) -> Any:
         """Execute the agent against the investigation state."""
         raise NotImplementedError
+
+class EmbeddingProvider(ABC):
+
+    @abstractmethod
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        """Convert text into embedding vectors."""
+        raise NotImplementedError
